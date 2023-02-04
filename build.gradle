@@ -4,7 +4,6 @@ plugins {
 	id 'org.ajoberstar.grgit' version '4.1.0'
 }
 def getVersionMetadata() {
-	targetCompatibility = JavaVersion.VERSION_1_8
 	// CI builds version numbers
 	def build_id = System.getenv("RELEASE_NUMBER")
 	if (build_id != null) {
@@ -25,11 +24,8 @@ def getVersionMetadata() {
 	return "rev.${id}"
 }
 
-archivesBaseName = project.archives_base_name
 archivesBaseName = "${project.mod_id}-${project.supported_versions}"
-version = "${project.mod_version}+${project.minecraft_version}"
 version = "${getVersionMetadata()}"
-group = project.maven_group
 group = project.maven_group
 repositories {
 	// Add repositories to retrieve artifacts from in here.
@@ -49,14 +45,10 @@ dependencies {
 processResources {
 	inputs.property "mod_id", project.mod_id
 	inputs.property "version", project.version
-	inputs.property "version", project.version
 	filteringCharset "UTF-8"
 
 	filesMatching("fabric.mod.json") {
-		filesMatching("fabric.mod.json") {
-			expand "version": project.version
-			expand "mod_id": project.mod_id, "version": project.version
-		}
+		expand "mod_id": project.mod_id, "version": project.version
 	}
 }
 
