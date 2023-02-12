@@ -52,7 +52,7 @@ public class MinecraftClientMixin {
             )
     )
     private void antiresourcereload_skipLoad(ServerResourceManager manager) throws ExecutionException, InterruptedException {
-        if (manager == AntiResourceReload.cache.get()) {
+        if (AntiResourceReload.cache != null && manager == AntiResourceReload.cache.get()) {
             if (hasLoadedTags) return;
             hasLoadedTags = true;
         }
