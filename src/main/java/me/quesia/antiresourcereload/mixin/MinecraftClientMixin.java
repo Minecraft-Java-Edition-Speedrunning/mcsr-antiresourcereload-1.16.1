@@ -1,6 +1,7 @@
-package me.wurgo.antiresourcereload.mixin;
+package me.quesia.antiresourcereload.mixin;
 
-import me.wurgo.antiresourcereload.AntiResourceReload;
+import me.quesia.antiresourcereload.AntiResourceReload;
+import me.quesia.antiresourcereload.mixin.access.RecipeManagerAccess;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ServerResourceManager;
@@ -25,21 +26,22 @@ public class MinecraftClientMixin {
                     target = "Lnet/minecraft/resource/ServerResourceManager;reload(Ljava/util/List;Lnet/minecraft/server/command/CommandManager$RegistrationEnvironment;ILjava/util/concurrent/Executor;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"
             )
     )
-    private CompletableFuture<ServerResourceManager> antiresourcereload_cachedReload(List<ResourcePack> dataPacks, CommandManager.RegistrationEnvironment registrationEnvironment, int i, Executor executor, Executor executor2) throws ExecutionException, InterruptedException {
-        if (dataPacks.size() != 1) { AntiResourceReload.log("Using data-packs, reloading."); }
-        else if (AntiResourceReload.cache == null) { AntiResourceReload.log("Cached resources unavailable, reloading & caching."); }
+    private CompletableFuture<ServerResourceManager> antiresourcereload$cachedReload(List<ResourcePack> dataPacks, CommandManager.RegistrationEnvironment registrationEnvironment, int i, Executor executor, Executor executor2) throws ExecutionException, InterruptedException {
+        if (!dataPacks.equals(AntiResourceReload.DATAPACK_CACHE)) { AntiResourceReload.log("Using new data-packs, reloading."); }
+        else if (AntiResourceReload.CACHE == null) { AntiResourceReload.log("Cached resources unavailable, reloading & caching."); }
         else {
             AntiResourceReload.log("Using cached server resources.");
-            if (AntiResourceReload.hasSeenRecipes) {
-                ((RecipeManagerAccess) AntiResourceReload.cache.get().getRecipeManager()).invokeApply(AntiResourceReload.recipes, null, null);
+            if (AntiResourceReload.HAS_SEEN_RECIPES) {
+                ((RecipeManagerAccess) AntiResourceReload.CACHE.get().getRecipeManager()).invokeApply(AntiResourceReload.RECIPES, null, null);
             }
-            AntiResourceReload.hasSeenRecipes = false;
-            return AntiResourceReload.cache;
+            AntiResourceReload.HAS_SEEN_RECIPES = false;
+            AntiResourceReload.DATAPACK_CACHE = dataPacks;
+            return AntiResourceReload.CACHE;
         }
 
         CompletableFuture<ServerResourceManager> reloaded = ServerResourceManager.reload(dataPacks, registrationEnvironment, i, executor, executor2);
         
-        if (dataPacks.size() == 1) { AntiResourceReload.cache = reloaded; }
+        if (dataPacks.size() == 1) { AntiResourceReload.CACHE = reloaded; }
 
         return reloaded;
     }
@@ -51,8 +53,8 @@ public class MinecraftClientMixin {
                     target = "Lnet/minecraft/resource/ServerResourceManager;loadRegistryTags()V"
             )
     )
-    private void antiresourcereload_skipLoad(ServerResourceManager manager) throws ExecutionException, InterruptedException {
-        if (AntiResourceReload.cache != null && manager == AntiResourceReload.cache.get()) {
+    private void antiresourcereload$skipLoad(ServerResourceManager manager) throws ExecutionException, InterruptedException {
+        if (AntiResourceReload.CACHE != null && manager == AntiResourceReload.CACHE.get()) {
             if (hasLoadedTags) return;
             hasLoadedTags = true;
         }

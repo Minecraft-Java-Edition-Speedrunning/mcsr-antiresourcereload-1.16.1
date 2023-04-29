@@ -1,14 +1,15 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "me.wurgo.antiresourcereload.mixin",
+  "package": "me.quesia.antiresourcereload.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "access.RecipeManagerAccess",
+
     "MinecraftClientMixin",
-    "ServerResourceManagerMixin",
-    "RecipeManagerAccess",
+    "RecipeBookWidgetMixin",
     "RecipeManagerMixin",
-    "RecipeBookWidgetMixin"
+    "ServerResourceManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

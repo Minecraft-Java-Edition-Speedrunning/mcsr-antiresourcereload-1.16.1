@@ -1,6 +1,6 @@
-package me.wurgo.antiresourcereload.mixin;
+package me.quesia.antiresourcereload.mixin;
 
-import me.wurgo.antiresourcereload.AntiResourceReload;
+import me.quesia.antiresourcereload.AntiResourceReload;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.ServerResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,9 +18,9 @@ public abstract class ServerResourceManagerMixin {
                     target = "Lnet/minecraft/resource/ReloadableResourceManager;close()V"
             )
     )
-    private void antiresourcereload_keepOpened(ReloadableResourceManager instance) throws ExecutionException, InterruptedException {
+    private void antiresourcereload$keepOpened(ReloadableResourceManager instance) throws ExecutionException, InterruptedException {
         // noinspection ConstantConditions - I think mixin is confusing for intellij here
-        if (AntiResourceReload.cache == null || (Object) this != AntiResourceReload.cache.get()) {
+        if (AntiResourceReload.CACHE == null || (Object) this != AntiResourceReload.CACHE.get()) {
             instance.close();
         }
     }

@@ -1,4 +1,4 @@
-package me.wurgo.antiresourcereload.mixin;
+package me.quesia.antiresourcereload.mixin.access;
 
 import com.google.gson.JsonElement;
 import net.minecraft.recipe.RecipeManager;
