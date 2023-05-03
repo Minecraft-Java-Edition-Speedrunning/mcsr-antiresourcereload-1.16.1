@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class AntiResourceReload implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(FabricLoader.getInstance().getModContainer("antiresourcereload").orElseThrow(RuntimeException::new).getMetadata().getName());
     public static CompletableFuture<ServerResourceManager> CACHE;
-    public static List<ResourcePack> DATAPACK_CACHE = new ArrayList<>();
+    public static List<String> DATAPACK_CACHE = new ArrayList<>();
     public static Map<Identifier, JsonElement> RECIPES;
     public static boolean HAS_SEEN_RECIPES;
 

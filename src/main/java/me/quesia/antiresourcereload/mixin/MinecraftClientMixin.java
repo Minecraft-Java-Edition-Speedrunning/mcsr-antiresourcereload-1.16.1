@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +19,7 @@ import java.util.concurrent.Executor;
 
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
-    private boolean hasLoadedTags;
+    private boolean loadedTags;
 
     @Redirect(
             method = "method_29604",
@@ -27,7 +29,11 @@ public class MinecraftClientMixin {
             )
     )
     private CompletableFuture<ServerResourceManager> antiresourcereload$cachedReload(List<ResourcePack> dataPacks, CommandManager.RegistrationEnvironment registrationEnvironment, int i, Executor executor, Executor executor2) throws ExecutionException, InterruptedException {
-        if (!dataPacks.equals(AntiResourceReload.DATAPACK_CACHE)) { AntiResourceReload.log("Using new data-packs, reloading."); }
+        List<String> names = dataPacks.stream().map(ResourcePack::getName).toList();
+        if (dataPacks.size() > 1 && !AntiResourceReload.DATAPACK_CACHE.equals(names)) {
+            AntiResourceReload.log("Using new data-packs, reloading.");
+            AntiResourceReload.DATAPACK_CACHE = names;
+        }
         else if (AntiResourceReload.CACHE == null) { AntiResourceReload.log("Cached resources unavailable, reloading & caching."); }
         else {
             AntiResourceReload.log("Using cached server resources.");
@@ -35,13 +41,11 @@ public class MinecraftClientMixin {
                 ((RecipeManagerAccess) AntiResourceReload.CACHE.get().getRecipeManager()).invokeApply(AntiResourceReload.RECIPES, null, null);
             }
             AntiResourceReload.HAS_SEEN_RECIPES = false;
-            AntiResourceReload.DATAPACK_CACHE = dataPacks;
             return AntiResourceReload.CACHE;
         }
 
         CompletableFuture<ServerResourceManager> reloaded = ServerResourceManager.reload(dataPacks, registrationEnvironment, i, executor, executor2);
-        
-        if (dataPacks.size() == 1) { AntiResourceReload.CACHE = reloaded; }
+        if (dataPacks.size() == 1 || AntiResourceReload.DATAPACK_CACHE.equals(names)) { AntiResourceReload.CACHE = reloaded; }
 
         return reloaded;
     }
@@ -55,8 +59,8 @@ public class MinecraftClientMixin {
     )
     private void antiresourcereload$skipLoad(ServerResourceManager manager) throws ExecutionException, InterruptedException {
         if (AntiResourceReload.CACHE != null && manager == AntiResourceReload.CACHE.get()) {
-            if (hasLoadedTags) return;
-            hasLoadedTags = true;
+            if (this.loadedTags) { return; }
+            this.loadedTags = true;
         }
         manager.loadRegistryTags();
     }
