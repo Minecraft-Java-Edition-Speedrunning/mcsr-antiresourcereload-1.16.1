@@ -1,7 +1,7 @@
-package me.wurgo.antiresourcereload.mixin;
+package me.quesia.antiresourcereload.mixin;
 
 import com.google.gson.JsonElement;
-import me.wurgo.antiresourcereload.AntiResourceReload;
+import me.quesia.antiresourcereload.AntiResourceReload;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
@@ -19,9 +19,9 @@ public class RecipeManagerMixin {
             method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V",
             at = @At("HEAD")
     )
-    private void antiresourcereload_setRecipes(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
-        if (AntiResourceReload.cache != null && !AntiResourceReload.cache.isDone()) {
-            AntiResourceReload.recipes = map;
+    private void antiresourcereload$setRecipes(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
+        if (AntiResourceReload.CACHE != null && !AntiResourceReload.CACHE.isDone()) {
+            AntiResourceReload.RECIPES = map;
         }
     }
 }
